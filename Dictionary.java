@@ -1,3 +1,4 @@
+package dictionaryfinder;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -5,66 +6,55 @@ import java.io.IOException;
 import java.util.*;
 
 public class Dictionary {
+    static TreeSet<String> allDictionaryString = new TreeSet<>();
 
-    private DictionaryService dictService;
-
-    public void setDictionaryService(DictionaryService dictService){
-        this.dictService = dictService;
-    }
-
-    /**
-     * Represents the getDictionary function
-     * @return
-     */
-    public List<String> getDictionary() {
-        return dictService.getDictionary();
-    }
-
-    /**
-     * Represents the isEnglishWord function
-     * @param word
-     * @return
-     */
-    public boolean isEnglishWord(String word) {
-        return dictService.isEnglishWord(word);
-    }
-
-    /**
-     * Find all possible words in a given string
-     * @param input
-     * @return
-     */
-    public List<String> findPossibleWords(String input) {
-        ArrayList<String> matches = new ArrayList <String> ();
-        List<String> dictionary = getDictionary();
-        input = input.toLowerCase();
-
-        // for each word in dictionary
-        for (String word : dictionary) {
-            //System.out.println(word);
-
-            // match flag
-            Boolean nonMatch = true;
-
-            for (char chWord : word.toCharArray()) {
-                String w = Character.toString(chWord);
-
-                // if the count of chW in word is equal to its count in input,
-                // then, they are match
-                if (word.length() - word.replace(w, "").length() !=
-                        input.length() - input.replace(w, "").length()) {
-                    nonMatch = false;
-                    break;
+    public static void readDictionaryWords(String givenWord) {
+        int wc = 0;
+        try (Scanner sc = new Scanner(new BufferedReader(new FileReader("Dictionary.txt")))) {
+            for (;sc.hasNext(); ) {
+                String ow=givenWord.toUpperCase();
+                String dictionaryWord = sc.next();
+                if (dictionaryWord.length() <= ow.length()) {
+                    boolean charFound = true;
+                    for (char c : dictionaryWord.toCharArray()) {
+                        if (!ow.contains(c + "")) {
+                            charFound = false;
+                            break;
+                        }else {
+                            ow = ow.replaceFirst(c + "", "");
+                        }
+                    }
+                    if (charFound) {
+                        System.out.println(dictionaryWord);
+                        allDictionaryString.add(dictionaryWord);
+                        wc++;
+                    }
                 }
             }
-            if (nonMatch) {
-                matches.add(word);
+        } catch (IOException e) {
+            System.out.println("Dictionary is not avaialble");
+        }finally {
+            System.out.println(allDictionaryString);
+            System.out.println(wc);
+
+        }
+    }
+
+    private static boolean isEnglishWord(String word) {
+        boolean englishWordOnly = true;
+        for (char c : word.toCharArray()) {
+            if (!Character.isAlphabetic(c)) {
+                englishWordOnly = false;
+                break;
             }
         }
-        System.out.println(matches);
-        return matches;
+        return englishWordOnly;
+    }
+
+    public static void main(String[] args) {
+        String myWord = "Working";
+        if (isEnglishWord(myWord)) {
+            readDictionaryWords(myWord);
+        }
     }
 }
-
-
-
